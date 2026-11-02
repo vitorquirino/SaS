@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>TaskFlow – Gestão de tarefas</title>
+    <style>
+        :root {
+            --bg: #f6f7fb;
+            --card: #fff;
+            --tx: #1b1f2a;
+            --mut: #6b7280;
+            --bd: #e5e7eb;
+            --ac: #4f46e5;
+            --act: #fff;
+            --ok: #16a34a;
+            --warn: #d97706;
+            --bad: #dc2626;
+            box-sizing: border-box;
+            padding-top: env(safe-area-inset-top, 0px);
+            padding-bottom: env(safe-area-inset-bottom, 0px)
+        }
+
+        @media (prefers-color-scheme:dark) {
+            :root:not([data-theme="light"]) {
+                --bg: #0f1117;
+                --card: #181b24;
+                --tx: #e8eaf0;
+                --mut: #9aa1b2;
+                --bd: #2a2f3c;
+                --ac: #818cf8;
+                --act: #10121a
+            }
+        }
+
+        :root[data-theme="dark"] {
+            --bg: #0f1117;
+            --card: #181b24;
+            --tx: #e8eaf0;
+            --mut: #9aa1b2;
+            --bd: #2a2f3c;
+            --ac: #818cf8;
+            --act: #10121a
+        }
+
+        * {
+            box-sizing: border-box
+        }
+
+        html {
+            scroll-padding-top: env(safe-area-inset-top, 0px)
+        }
+
+        body {
+            margin: 0;
+            background: var(--bg);
+            color: var(--tx);
+            font: 15px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+            min-height: 100vh
+        }
+
+        button,
+        input,
+        select {
+            font: inherit;
+            color: inherit
+        }
+
+        input,
+        select {
+            background: var(--card);
+            border: 1px solid var(--bd);
+            border-radius: 8px;
+            padding: 9px 11px;
+            min-width: 0
+        }
+
+        button {
+            cursor: pointer;
+            border: 1px solid var(--bd);
+            background: var(--card);
+            border-radius: 8px;
+            padding: 8px 12px
+        }
+
+        button.p {
+            background: var(--ac);
+            color: var(--act);
+            border-color: var(--ac);
+            font-weight: 600
+        }
+
+        button.g {
+            border: 0;
+            background: none;
+            padding: 4px 7px;
+            color: var(--mut)
+        }
+
+        .login {
+            max-width: 380px;
+            margin: 12vh auto;
+            padding: 0 18px
+        }
+
+        .card {
+            background: var(--card);
+            border: 1px solid var(--bd);
+            border-radius: 12px;
+            padding: 16px
+        }
+
+        .login form {
+            display: grid;
+            gap: 10px;
+            margin-top: 16px
+        }
+
+        h1,
+        h2,
+        h3 {
+            margin: 0
+        }
+
+        .mut {
+            color: var(--mut)
+        }
+
+        .app {
+            display: flex;
+            min-height: 100vh
+        }
+
+        nav {
+            width: 200px;
+            padding: 18px 12px;
+            border-right: 1px solid var(--bd);
+            background: var(--card);
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            flex: none
+        }
+
+        nav .logo {
+            font-weight: 700;
+            font-size: 18px;
+            margin: 0 8px 14px
+        }
+
+        nav button {
+            text-align: left;
+            border: 0;
+            background: none;
+            padding: 9px 10px
+        }
+
+        nav button.on {
+            background: var(--bg);
+            font-weight: 600;
+            color: var(--ac)
+        }
+
+        nav .sp {
+            flex: 1
+        }
+
+        main {
+            flex: 1;
+            padding: 22px;
+            min-width: 0;
+            max-width: 1100px
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 12px;
+            margin: 16px 0
+        }
+
+        .stats b {
+            font-size: 26px;
+            display: block
+        }
+
+        .row {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            align-items: center
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 12px;
+            margin-top: 14px
+        }
+
+        .bar {
+            height: 6px;
+            border-radius: 6px;
+            background: var(--bd);
+            overflow: hidden;
+            margin-top: 10px
+        }
+
+        .bar i {
+            display: block;
+            height: 100%;
+            background: var(--ok)
+        }
+
+        .board {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(240px, 1fr));
+            gap: 12px;
+            margin-top: 14px;
+            overflow-x: auto
+        }
+
+        .col {
+            background: var(--bg);
+            border: 1px dashed var(--bd);
+            border-radius: 12px;
+            padding: 10px;
+            min-height: 160px
+        }
+
+        .col h3 {
+            font-size: 13px;
+            color: var(--mut);
+            margin: 2px 4px 8px;
+            text-transform: uppercase;
+            letter-spacing: .04em
+        }
+
+        .task {
+            background: var(--card);
+            border: 1px solid var(--bd);
+            border-radius: 10px;
+            padding: 10px;
+            margin-bottom: 8px
+        }
+
+        .tag {
+            font-size: 11px;
+            border-radius: 99px;
+            padding: 2px 8px;
+            border: 1px solid var(--bd);
+            margin-right: 4px
+        }
+
+        .alta {
+            color: var(--bad)
+        }
+
+        .media {
+            color: var(--warn)
+        }
+
+        .baixa {
+            color: var(--ok)
+        }
+
+        .late {
+            color: var(--bad);
+            font-weight: 600
+        }
+
+        .plans {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 12px;
+            margin-top: 16px
+        }
+
+        .plans .cur {
+            border: 2px solid var(--ac)
+        }
+
+        ul.l {
+            padding-left: 18px;
+            margin: 10px 0;
+            color: var(--mut)
+        }
+
+        .top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap
+        }
+
+        @media(max-width:720px) {
+            .app {
+                flex-direction: column
+            }
+
+            nav {
+                width: 100%;
+                flex-direction: row;
+                flex-wrap: wrap;
+                border-right: 0;
+                border-bottom: 1px solid var(--bd)
+            }
+
+            nav .logo {
+                width: 100%;
+                margin-bottom: 4px
+            }
+
+            nav .sp {
+                display: none
+            }
+
+            main {
+                padding: 16px
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="root"></div>
+    <script>
+        var KEY = 'taskflow-v1', COLS = [['todo', 'A fazer'], ['doing', 'Em andamento'], ['done', 'Concluído']], LIMIT = 3;
+        var S = load(), ui = {view: 'dash', pid: null, edit: null, msg: ''};
+        function load() {try {return JSON.parse(localStorage.getItem(KEY))} catch (e) {return null} }
+        function save() {try {localStorage.setItem(KEY, JSON.stringify(S))} catch (e) { } }
+        function uid() {return Math.random().toString(36).slice(2, 9)}
+        function esc(s) {return String(s).replace(/[&<>"]/g, function (c) {return {'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;'}[c]})}
+        var today = new Date().toISOString().slice(0, 10);
+        function late(t) {return t.due && t.due < today && t.status !== 'done'}
+        function fmt(d) {return d ? d.split('-').reverse().join('/') : ''}
+        function R(h) {document.getElementById('root').innerHTML = h}
+
+        function login(e) {
+            e.preventDefault(); var f = e.target;
+            S = {
+                user: {name: f.n.value.trim(), email: f.m.value.trim()}, plan: 'free', projects: [{
+                    id: uid(), name: 'Meu primeiro projeto', tasks: [
+                        {id: uid(), title: 'Explorar o TaskFlow', status: 'done', prio: 'baixa', due: ''},
+                        {id: uid(), title: 'Criar minha primeira tarefa', status: 'doing', prio: 'media', due: ''},
+                        {id: uid(), title: 'Convidar a equipe', status: 'todo', prio: 'alta', due: today}]
+                }]
+            };
+            save(); ui.view = 'dash'; render()
+        }
+        function logout() {S = null; try {localStorage.removeItem(KEY)} catch (e) { } render()}
+        function go(v, p) {ui.view = v; ui.pid = p || null; ui.edit = null; ui.msg = ''; render()}
+        function addProject(e) {
+            e.preventDefault(); var n = e.target.n.value.trim(); if (!n) return;
+            if (S.plan === 'free' && S.projects.length >= LIMIT) {ui.msg = 'Limite de ' + LIMIT + ' projetos no plano Grátis. Faça upgrade para o Pro.'; return render()}
+            S.projects.push({id: uid(), name: n, tasks: []}); save(); ui.msg = ''; render()
+        }
+        function delProject(id) {S.projects = S.projects.filter(function (p) {return p.id !== id}); save(); go('proj')}
+        function proj() {return S.projects.find(function (p) {return p.id === ui.pid})}
+        function addTask(e) {
+            e.preventDefault(); var f = e.target, t = f.t.value.trim(); if (!t) return;
+            proj().tasks.push({id: uid(), title: t, status: 'todo', prio: f.p.value, due: f.d.value}); save(); render()
+        }
+        function findT(id) {return proj().tasks.find(function (t) {return t.id === id})}
+        function move(id, dir) {
+            var t = findT(id), i = COLS.findIndex(function (c) {return c[0] === t.status}) + dir;
+            if (i >= 0 && i < 3) {t.status = COLS[i][0]; save(); render()}
+        }
+        function delTask(id) {var p = proj(); p.tasks = p.tasks.filter(function (t) {return t.id !== id}); save(); render()}
+        function edit(id) {ui.edit = id; render(); var i = document.getElementById('ed'); if (i) i.focus()}
+        function saveEdit(id, v) {v = v.trim(); if (v) findT(id).title = v; ui.edit = null; save(); render()}
+        function setPlan(p) {S.plan = p; save(); render()}
+        function drag(e, id) {e.dataTransfer.setData('text/plain', id)}
+        function drop(e, st) {e.preventDefault(); var t = findT(e.dataTransfer.getData('text/plain')); if (t) {t.status = st; save(); render()} }
+
+        function taskCard(t) {
+            var title = ui.edit === t.id ? '<input id="ed" value="' + esc(t.title) + '" style="width:100%" onblur="saveEdit(\'' + t.id + '\',this.value)" onkeydown="if(event.key===\'Enter\')this.blur()">' : '<div>' + esc(t.title) + '</div>';
+            var i = COLS.findIndex(function (c) {return c[0] === t.status});
+            return '<div class="task" draggable="true" ondragstart="drag(event,\'' + t.id + '\')">' + title +
+                '<div class="row" style="margin-top:6px"><span class="tag ' + t.prio + '">' + t.prio + '</span>' + (t.due ? '<span class="' + (late(t) ? 'late' : 'mut') + '" style="font-size:12px">' + (late(t) ? 'Atrasada · ' : '') + fmt(t.due) + '</span>' : '') + '</div>' +
+                '<div class="row" style="margin-top:6px;justify-content:space-between"><span>' +
+                (i > 0 ? '<button class="g" onclick="move(\'' + t.id + '\',-1)" aria-label="Voltar">←</button>' : '') +
+                (i < 2 ? '<button class="g" onclick="move(\'' + t.id + '\',1)" aria-label="Avançar">→</button>' : '') + '</span><span>' +
+                '<button class="g" onclick="edit(\'' + t.id + '\')">Editar</button><button class="g" onclick="delTask(\'' + t.id + '\')">Excluir</button></span></div></div>'
+        }
+
+        function viewDash() {
+            var all = []; S.projects.forEach(function (p) {p.tasks.forEach(function (t) {all.push({t: t, p: p})})});
+            var n = function (s) {return all.filter(function (x) {return x.t.status === s}).length};
+            var lt = all.filter(function (x) {return late(x.t)});
+            var up = all.filter(function (x) {return x.t.status !== 'done'}).sort(function (a, b) {return (a.t.due || '9') < (b.t.due || '9') ? -1 : 1}).slice(0, 6);
+            return '<h2>Olá, ' + esc(S.user.name.split(' ')[0]) + ' 👋</h2><p class="mut">Resumo do seu trabalho.</p>' +
+                '<div class="stats"><div class="card"><b>' + all.length + '</b><span class="mut">Tarefas</span></div><div class="card"><b>' + n('doing') + '</b><span class="mut">Em andamento</span></div><div class="card"><b>' + n('done') + '</b><span class="mut">Concluídas</span></div><div class="card"><b class="' + (lt.length ? 'late' : '') + '">' + lt.length + '</b><span class="mut">Atrasadas</span></div></div>' +
+                '<div class="card"><h3>Próximas tarefas</h3>' + (up.length ? up.map(function (x) {return '<div class="row" style="justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--bd)"><span>' + esc(x.t.title) + ' <span class="mut">· ' + esc(x.p.name) + '</span></span><span class="' + (late(x.t) ? 'late' : 'mut') + '">' + (fmt(x.t.due) || 'sem prazo') + '</span></div>'}).join('') : '<p class="mut">Nada pendente. 🎉</p>') + '</div>'
+        }
+
+        function viewProjects() {
+            return '<h2>Projetos</h2>' + (ui.msg ? '<p class="late">' + esc(ui.msg) + '</p>' : '') +
+                '<form class="row" style="margin-top:12px" onsubmit="addProject(event)"><input name="n" placeholder="Nome do novo projeto" style="flex:1;min-width:180px"><button class="p">Criar projeto</button></form>' +
+                '<div class="grid">' + S.projects.map(function (p) {
+                    var d = p.tasks.filter(function (t) {return t.status === 'done'}).length, pc = p.tasks.length ? Math.round(d / p.tasks.length * 100) : 0;
+                    return '<div class="card" style="cursor:pointer" onclick="go(\'board\',\'' + p.id + '\')"><h3>' + esc(p.name) + '</h3><div class="mut" style="margin-top:4px">' + d + ' de ' + p.tasks.length + ' concluídas · ' + pc + '%</div><div class="bar"><i style="width:' + pc + '%"></i></div></div>'
+                }).join('') + '</div>'
+        }
+
+        function viewBoard() {
+            var p = proj(); if (!p) return viewProjects();
+            return '<div class="top"><div><button class="g" onclick="go(\'proj\')">← Projetos</button><h2>' + esc(p.name) + '</h2></div><button onclick="delProject(\'' + p.id + '\')">Excluir projeto</button></div>' +
+                '<form class="row" style="margin-top:12px" onsubmit="addTask(event)"><input name="t" placeholder="Nova tarefa" style="flex:1;min-width:180px"><select name="p"><option value="baixa">Baixa</option><option value="media" selected>Média</option><option value="alta">Alta</option></select><input type="date" name="d"><button class="p">Adicionar</button></form>' +
+                '<div class="board">' + COLS.map(function (c) {return '<div class="col" ondragover="event.preventDefault()" ondrop="drop(event,\'' + c[0] + '\')"><h3>' + c[1] + ' (' + p.tasks.filter(function (t) {return t.status === c[0]}).length + ')</h3>' + p.tasks.filter(function (t) {return t.status === c[0]}).map(taskCard).join('') + '</div>'}).join('') + '</div>'
+        }
+
+        function viewPlan() {
+            var pro = S.plan === 'pro';
+            return '<h2>Plano e conta</h2><p class="mut">' + esc(S.user.name) + ' · ' + esc(S.user.email) + '</p><div class="plans">' +
+                '<div class="card ' + (pro ? '' : 'cur') + '"><h3>Grátis</h3><b style="font-size:26px">R$ 0</b><ul class="l"><li>Até ' + LIMIT + ' projetos</li><li>Tarefas ilimitadas</li><li>Quadro Kanban</li></ul>' + (pro ? '<button onclick="setPlan(\'free\')">Voltar ao Grátis</button>' : '<button disabled>Plano atual</button>') + '</div>' +
+                '<div class="card ' + (pro ? 'cur' : '') + '"><h3>Pro</h3><b style="font-size:26px">R$ 29/mês</b><ul class="l"><li>Projetos ilimitados</li><li>Tudo do Grátis</li><li>Suporte prioritário</li></ul>' + (pro ? '<button disabled>Plano atual</button>' : '<button class="p" onclick="setPlan(\'pro\')">Fazer upgrade</button>') + '</div></div>' +
+                '<p class="mut" style="margin-top:14px">Demonstração: os dados ficam salvos apenas neste navegador e não há cobrança real.</p>'
+        }
+
+        function render() {
+            if (!S) {return R('<div class="login card" style="margin-top:12vh"><h1>✅ TaskFlow</h1><p class="mut">Organize projetos e tarefas em um só lugar.</p><form onsubmit="login(event)"><input name="n" placeholder="Seu nome" required><input name="m" type="email" placeholder="Seu e-mail" required><button class="p">Entrar grátis</button></form></div>')}
+            var v = ui.view, body = v === 'dash' ? viewDash() : v === 'proj' ? viewProjects() : v === 'board' ? viewBoard() : viewPlan();
+            var nb = function (k, l) {return '<button class="' + ((v === k || (k === 'proj' && v === 'board')) ? 'on' : '') + '" onclick="go(\'' + k + '\')">' + l + '</button>'};
+            R('<div class="app"><nav><div class="logo">✅ TaskFlow</div>' + nb('dash', 'Painel') + nb('proj', 'Projetos') + nb('plan', 'Plano') + '<div class="sp"></div><button onclick="logout()">Sair</button></nav><main>' + body + '</main></div>')
+        }
+        render();
+    </script>
+</body>
+
+</html>
